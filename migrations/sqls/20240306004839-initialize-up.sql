@@ -1,0 +1,4 @@
+ALTER TABLE users ADD COLUMN id_new SERIAL PRIMARY KEY;
+UPDATE users SET id_new = id;
+ALTER TABLE users DROP COLUMN id;
+ALTER TABLE users RENAME COLUMN id_new TO id;
