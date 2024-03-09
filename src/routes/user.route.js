@@ -12,7 +12,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 router.use(authentication);
-// PERLU LOGIN
+// HANY PERLU LOGIN TIDAK PERLU MENJADI ADMIN KARENA USER MAU UPDATE DATA
 router.put("/:id", updateUser);
 
 // PERLU AUTHORISASI SEBAGAI ADMIN

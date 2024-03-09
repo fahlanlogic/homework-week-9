@@ -104,7 +104,22 @@ const getUser = async (req, res, next) => {
 	}
 };
 
-const deleteUser = async (req, res, next) => {};
+const deleteUser = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const findOne = await pool.query(
+			`SELECT * FROM users WHERE id = $1;`,
+			[id]
+		);
+		if (findOne.rows.length !== 0) {
+			// DELETE USER QUERY
+			await pool.query(`DELETE FROM users WHERE id = $1;`, [id]);
+			res.status(200).send("User has been deleted!"); // OK: SUCCESS DELETED
+		} else throw { code: 404 }; // ERROR CLIENT: USER NOT FOUND
+	} catch (err) {
+		next(err);
+	}
+};
 
 module.exports = {
 	registerUser,
