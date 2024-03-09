@@ -95,8 +95,16 @@ const updateUser = async (req, res, next) => {
 	}
 };
 
-const getUser = async (req, res) => {};
-const deleteUser = async (req, res) => {};
+const getUser = async (req, res, next) => {
+	try {
+		const result = await pool.query(`SELECT * FROM users;`);
+		res.status(200).json(result.rows); // OK: SUCCESS
+	} catch (err) {
+		next(err);
+	}
+};
+
+const deleteUser = async (req, res, next) => {};
 
 module.exports = {
 	registerUser,
