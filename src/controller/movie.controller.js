@@ -1,0 +1,83 @@
+const pool = require("../../queries");
+
+const getMovies = async (req, res, next) => {
+	try {
+		const result = await pool.query(`SELECT * FROM movies;`);
+		res.status(200).json(result.rows); // OK: SUCCESS
+	} catch (err) {
+		next(err);
+	}
+};
+
+const getMovieById = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const result = await pool.query(
+			`SELECT * FROM movies WHERE id = $1;`,
+			[id]
+		);
+		res.status(200).json(result.rows[0]); // OK: SUCCESS
+	} catch (err) {
+		next(err);
+	}
+};
+
+const addMovie = async (req, res, next) => {
+	try {
+		const { title, genres, year } = req.body;
+
+		if (!title || !genres || !year) throw { code: 400 }; // ERROR CLIENT: MISSING FORM DATA
+
+		const result = await pool.query(
+			`INSERT INTO movies (title, genres, year) VALUES ($1, $2, $3) RETURNING *;`,
+			[title, genres, year]
+		);
+		res.status(201).json({
+			message: "Movie has been created",
+			addMovie: result.rows[0],
+		}); // CREATED: SUCCESS
+	} catch (err) {
+		next(err);
+	}
+};
+
+const updateMovie = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { title, genres, year } = req.body;
+		const result = await pool.query(
+			`UPDATE movies SET title = $1, genres = $2, year = $3 WHERE id = $4 RETURNING *;`,
+			[title, genres, year, id]
+		);
+		res.status(200).json({
+			message: "Movie has been updated",
+			updateMovie: result.rows[0],
+		}); // OK: SUCCESS UPDATED
+	} catch (err) {
+		next(err);
+	}
+};
+
+const deleteMovie = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const result = await pool.query(
+			`DELETE FROM movies WHERE id = $1 RETURNING *;`,
+			[id]
+		);
+		res.status(200).json({
+			message: "Movie has been deleted",
+			deleteMovie: result.rows[0],
+		}); // OK: SUCCESS DELETED
+	} catch (err) {
+		next(err);
+	}
+};
+
+module.exports = {
+	getMovies,
+	getMovieById,
+	addMovie,
+	updateMovie,
+	deleteMovie,
+};

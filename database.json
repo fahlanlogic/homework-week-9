@@ -4,6 +4,6 @@
     "user": "postgres",
     "password": "postgres",
     "host": "localhost",
-    "database": "movies_database"
+    "database": "movies-database"
   }
 }
