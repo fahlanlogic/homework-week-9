@@ -97,13 +97,14 @@ const updateUser = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
 	try {
-		const result = await pool.query(`SELECT * FROM users;`);
+		const result = await pool.query(
+			`SELECT * FROM users ${pagination(req.query)};`
+		);
 		res.status(200).json(result.rows); // OK: SUCCESS
 	} catch (err) {
 		next(err);
 	}
 };
-
 const deleteUser = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -118,6 +119,19 @@ const deleteUser = async (req, res, next) => {
 		} else throw { code: 404 }; // ERROR CLIENT: USER NOT FOUND
 	} catch (err) {
 		next(err);
+	}
+};
+
+// FUNCTION PAGINATION FOR INJECT TO QUERY
+const pagination = params => {
+	// GIVE DEFAULT VALUE
+	const { page = 1, limit = 10 } = params;
+
+	// CHECK PARAMS
+	if (Object.entries(params).length === 0) {
+		return "";
+	} else {
+		return `LIMIT ${limit} OFFSET ${(page - 1) * limit}`; // SET QUERY LIMIT AND OFFSET BY PARAMS
 	}
 };
 
