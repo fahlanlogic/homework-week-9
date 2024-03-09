@@ -1,19 +1,47 @@
+const verifyToken = require("../lib/jwt").verifyToken;
 const jwt = require("jsonwebtoken");
+const pool = require("../../queries");
+const authentication = async (req, res, next) => {
+	try {
+		if (req.headers.authorization) {
+			const token = req.headers.authorization.split(" ")[1]; // GET TOKEN FROM HEADER AUTHORIZATION
+			if (!token) throw { code: 401 }; // ERROR CLIENT: UNAUTHORIZED
 
-// fungsi menyimpan token
-const signToken = data => {
-	const token = jwt.sign(data, "kode_rahasia_123", {
-		expiresIn: "1d",
-	});
-	return token;
+			const decoded = verifyToken(token); // GET USER FROM TOKEN
+			// SEARCH USER BY ID
+			const user = await pool.query(
+				`SELECT * FROM users WHERE id = $1;`,
+				[decoded.id]
+			);
+
+			if (user.rows.length > 0) {
+				const currentUser = user.rows[0];
+
+				// STORE USER TO REQUEST
+				req.loggedUser = {
+					id: currentUser.id,
+					email: currentUser.email,
+					role: currentUser.role,
+				};
+				next(); // NEXT TO NEXT MIDDLEWARE
+			} else throw { code: 401 }; // ERROR CLIENT: UNAUTHORIZED
+		} else throw { code: 401 }; // ERROR CLIENT: UNAUTHORIZED
+	} catch (err) {
+		next(err);
+	}
 };
 
-// fungsi memverifikasi token
-const verifyToken = token => {
-	return jwt.verify(token, "kode_rahasia_123");
+const authorization = async (req, res, next) => {
+	try {
+		const { role } = req.loggedUser; // GET ROLE FROM REQUEST
+		if (role === "admin") next(); // ALLOWED ACCESS AS ROLE ADMIN
+		else throw { code: 403 }; // ERROR CLIENT: FORBIDDEN
+	} catch (err) {
+		next(err);
+	}
 };
 
 module.exports = {
-	signToken,
-	verifyToken,
+	authentication,
+	authorization,
 };

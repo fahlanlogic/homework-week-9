@@ -1,14 +1,13 @@
 const express = require("express");
 const pool = require("./queries");
-const bodyParser = require("body-parser");
-const userRouter = require("./src/routes/user.route");
-// const movieRouter = require("./src/routes/movies.route");
+const router = require("./src/routes/index");
+const errorHandler = require("./src/utils/error.middleware");
 const app = express();
 const port = 3000;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/api/users", userRouter);
+app.use(express.json());
+app.use(router);
+app.use(errorHandler);
 
 app.listen(port, () => {
 	console.log(`Server running on port http://localhost:${port}`);
@@ -18,4 +17,3 @@ pool.connect((err, res) => {
 	if (err) console.log(err);
 	console.log("Connected to database");
 });
-
