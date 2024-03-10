@@ -73,6 +73,9 @@ const deleteMovie = async (req, res, next) => {
 			`DELETE FROM movies WHERE id = $1 RETURNING *;`,
 			[id]
 		);
+
+		if (result.rows.length === 0) throw { code: 404 }; // ERROR CLIENT: MOVIE NOT FOUND
+
 		res.status(200).json({
 			message: "Movie has been deleted",
 			deleteMovie: result.rows[0],

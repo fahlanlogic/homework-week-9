@@ -1,15 +1,14 @@
 const jwt = require("jsonwebtoken");
-const env = require("dotenv").config();
 
 // fungsi menyimpan token
 const signToken = data => {
-	const token = jwt.sign(data, process.env.JWT_SECRET); // STORE KEY IN .env
+	const token = jwt.sign(data, "Fahdi_Alan"); // SIGN TOKEN FOR AUTHENTICATION
 	return token;
 };
 
 // fungsi memverifikasi token
 const verifyToken = token => {
-	const decoded = jwt.verify(token, process.env.JWT_SECRET); // STORE KEY IN .env
+	const decoded = jwt.verify(token, "Fahdi_Alan"); // VERIFY TOKEN FOR AUTHORIZATION
 	return decoded;
 };
 
