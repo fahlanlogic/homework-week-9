@@ -1,5 +1,4 @@
 const verifyToken = require("../lib/jwt").verifyToken;
-const jwt = require("jsonwebtoken");
 const pool = require("../../queries");
 const authentication = async (req, res, next) => {
 	try {

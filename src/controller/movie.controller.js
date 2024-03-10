@@ -5,7 +5,7 @@ const getMovies = async (req, res, next) => {
 		const result = await pool.query(
 			`SELECT * FROM movies ${pagination(req.query)};`
 		);
-		res.status(200).json(result.rows); // OK: SUCCESS
+		res.status(200).json({ data: result.rows }); // OK: SUCCESS
 	} catch (err) {
 		next(err);
 	}
@@ -18,6 +18,8 @@ const getMovieById = async (req, res, next) => {
 			`SELECT * FROM movies WHERE id = $1;`,
 			[id]
 		);
+
+		if (result.rows.length === 0) throw { code: 404 }; // ERROR CLIENT: MOVIE NOT FOUND
 		res.status(200).json(result.rows[0]); // OK: SUCCESS
 	} catch (err) {
 		next(err);
@@ -51,6 +53,10 @@ const updateMovie = async (req, res, next) => {
 			`UPDATE movies SET title = $1, genres = $2, year = $3 WHERE id = $4 RETURNING *;`,
 			[title, genres, year, id]
 		);
+
+		if (!title || !genres || !year) throw { code: 400 }; // ERROR CLIENT: MISSING FORM DATA
+		if (result.rows.length === 0) throw { code: 404 }; // ERROR CLIENT: MOVIE NOT FOUND
+
 		res.status(200).json({
 			message: "Movie has been updated",
 			updateMovie: result.rows[0],

@@ -56,7 +56,7 @@ const loginUser = async (req, res, next) => {
 		const user = result.rows[0]; // VARIABLE USER
 		const verifyPassword = bcrypt.compareSync(password, user.password); // COMPARE PASSWORD
 
-		if (!verifyPassword) throw { code: 401 }; // ERROR CLIENT: WRONG CREDENTIALS
+		if (!verifyPassword) throw { name: "WrongCredentials" }; // ERROR CLIENT: WRONG CREDENTIALS
 
 		const token = signToken(user); // MENYIMPAN TOKEN DALAM FUNGSI SIGN TOKEN
 
@@ -100,11 +100,27 @@ const getUser = async (req, res, next) => {
 		const result = await pool.query(
 			`SELECT * FROM users ${pagination(req.query)};`
 		);
-		res.status(200).json(result.rows); // OK: SUCCESS
+		res.status(200).json({ data: result.rows }); // OK: SUCCESS
 	} catch (err) {
 		next(err);
 	}
 };
+
+const getUserById = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const result = await pool.query(
+			`SELECT * FROM users WHERE id = $1;`,
+			[id]
+		);
+
+		if (result.rows.length === 0) throw { code: 404 }; // ERROR CLIENT: USER NOT FOUND
+		res.status(200).json(result.rows[0]); // OK: SUCCESS
+	} catch (err) {
+		next(err);
+	}
+};
+
 const deleteUser = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -139,6 +155,7 @@ module.exports = {
 	registerUser,
 	loginUser,
 	getUser,
+	getUserById,
 	updateUser,
 	deleteUser,
 };

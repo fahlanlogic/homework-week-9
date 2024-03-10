@@ -3,7 +3,9 @@ const errorHandler = (err, req, res, next) => {
 	if (err.code == 400) {
 		res.status(400).send("Bad Request, check your request body!");
 	} else if (err.code == 401) {
-		res.status(401).send("Unauthorized! Please login first!");
+		res.status(401).send("Unauntheticated! Please login first!");
+	} else if (err.name == 'WrongCredentials') {
+		res.status(401).send("Wrong Credentials! Please check your email and password!");
 	} else if (err.code == 403) {
 		res.status(403).send("Forbidden! You don't have permission!");
 	} else if (err.code == 404) {
